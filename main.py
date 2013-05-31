@@ -1,38 +1,117 @@
 #!/usr/bin/env python
 """Main Image Semgentation testing program
- Requires: argument one is operation type:
-               seg for segmentation
-               fit for fitness function
-          -seg requires arguments in order:
-               filename, red min + max, green min + max, blue min + max
-          -fit requires arguments in order:
-               generated mask, ideal mask
- Effects:  Runs segmentation tool as specified:
-          -seg outputs output.png of background (black) and 
-           foreground (white) which depend on parameters passed
-          -fit outputs the difference in # of black/white pixels
-           between a generated mask and an ideal mask
+Usage options:
+    
+    Optional:
+    -h --help    Prints this help message
+    -e --export  Saves generated mask as output.png
+    
+    Required:
+    -d --seg     Segmentation tool: 'rgb', ...
+    -f --fitness Fitness function:  'diff', ...
+    -s --search  Search function:   'random', ...
+    -i --image   Image filename
+    -m --mask    Ideal Mask filename
+    
+Example:
+        
+    >>>  main.py -d rgb -f diff -s random --image cameleon.png --mask cameleonMask.png
+    >>>  How many iterations do you want random search to run: 10    
+    Iteration 1
+    Iteration 2
+    ...
 """
 
 import sys # for argv
+import Image # for image data
+import getopt # for command line parsing
 import segmentation
 import fitness
+import search
+import parameters
 
 def main():
-
     try:
-        if sys.argv[1] == "seg":
-            segmentation.runSegmenter(sys.argv[2], map(int, sys.argv[3:]))
+        shortOpts = "d:f:s:i:m:he"
+        longOpts = ["segment=", "fitness=", "search=", "image=", "mask=", "help", "export"]
         
-        elif sys.argv[1] == "fit":
-            fitness.runFitness(sys.argv[2], sys.argv[3])
+        try:
+            options, remainder = getopt.getopt(sys.argv[1:], shortOpts, longOpts)
+        except:
+            print "\nERROR: Invalid option argument\n"
+            exit(1)
         
+        export = False
+        
+        for opt, arg in options:
+            if opt in ("-d", "--segment"):
+                segmenterName = arg
+            elif opt in ("-f", "--fitness"):
+                fitnessName = arg
+            elif opt in ("-s", "--search"):
+                searchName = arg
+            elif opt in ("-i", "--image"):
+                imageName = arg
+            elif opt in ("-m", "--mask"):
+                idealMaskName = arg
+            elif opt in ("-e", "--export"):
+                export = True
+            elif opt in ("-h", "--help"):
+                print __doc__
+                exit(1)
+            else:
+                pass
+                
+        if remainder != []:
+            print "\nERROR: Extraneous input\n"
+            exit(1)
+            
+        # initialize program based on arguments
+        if segmenterName.lower() == "rgb":
+            segmenter = segmentation.rgbSegmenter()
         else:
-            print "No valid tool specified"
-            print __doc__
+            print "\nERROR: Invalid or no segmenter name\n"
+            exit(1)
         
+        if fitnessName.lower() == "diff":
+            fitnessFunc = fitness.absDiffFitness()
+        else:
+            print "\nERROR: Invalid or no fitness name\n"
+            exit(1)
+        
+        if searchName.lower() == "random":
+            searchFunc = search.randomSearch(segmenter, fitnessFunc)
+        else:
+            print "\nERROR: Invalid or no search name\n"
+            exit(1)
+        
+        try:
+            image = Image.open(imageName)
+            imageData = list(image.getdata())
+        except:
+            print "\nERROR: Invalid or no image name\n"
+            exit(1)
+            
+        try:
+            mask = Image.open(idealMaskName)
+            idealMaskData = list(mask.getdata())
+        except:
+            print "\nERROR: Invalid or no mask name\n"
+            exit(1)
+        
+        parameter = parameters.Parameters()
+        parameter.setImageSize(image.size)
+        
+        # run search on image, returns optimal paramers found
+        optimalParameters = searchFunc.searchImage(imageData, idealMaskData, parameter)
+        
+        # saves mask to output.png if export option set
+        if (export == True):
+            segmenter.segmentImage(imageData, optimalParameters, True)
+    
     except:
-        print __doc__
+        print "Type -h or --help for option info\n"
+        
 
 main()
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
