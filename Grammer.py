@@ -11,7 +11,7 @@ class Segment(object):
         #          -returns a list of three-tupled RGB data where
         #           (0, 0, 0) (Black) is background and 
         #           (256, 256, 256) (White) is foreground
-        #          -saves the mask as an image 'output.png' if saveMaskImage set to True
+        #          -saves the output mask as an image 'output.png' if saveMaskImage set to True
         raise NotImplementedError
    
 class Fitness(object):
@@ -37,15 +37,16 @@ class Search(object):
         # Effects: tells Search which segmenter(s) and fitness function(s) to use
         raise NotImplementedError
     
-    def searchImage(self, imageData, idealMaskData, parameters):
+    def searchImage(self, imageData, idealMaskData, parameters, plot = False):
         # Requires: -imageData and idealMaskData are
         #            lists of three-tupled RGB (0 - 255) data
-        #            i.e. data from Segmenter's segmentImage and PIL's list(image.getdata())
+        #            i.e. data from PIL's list(image.getdata())
         #           -parameters is of type Parameters
         # Modifies: parameters
         # Effects: -searches the image's parameter space as specified
         #           attempting to minimize the objective fitness cost
         #          -returns parameters that give optimal cost
+        #          -plots fitness vs. extent of search if plot set to True
         raise NotImplementedError
         
 

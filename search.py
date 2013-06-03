@@ -1,5 +1,6 @@
 from random import randint # for rgb ranges
 from Grammer import Search # Abstract Base Class
+import pylab # for plotting
 
 class randomSearch(Search):
     # Random Search Class that randomly alters the
@@ -13,12 +14,14 @@ class randomSearch(Search):
         self.segmenter = segmenter
         self.fitness = fitness
     
-    def searchImage(self, imageData, idealMaskData, parameters):
+    def searchImage(self, imageData, idealMaskData, parameters, plot = False):
         # Requires: -image and idealMask is an RGB based image such as a .png file'
         #           -parameters is of type Parameters
-        # Modifies: parameters
-        # Effects:  Randomly searches the parameter space
+        # Modifies:  parameters
+        # Effects: -Randomly searches the parameter space
         #           for an optimal solution, and returns most optimal parameter found
+        #          -plots fitness vs. iterations of search if plot set to True
+
         print "Running random search"
         
         curBestRGB = self.randRgbRange()
@@ -26,20 +29,36 @@ class randomSearch(Search):
         mask = self.segmenter.segmentImage(imageData, parameters)
         curBestFit = self.fitness.findFitness(mask, idealMaskData, parameters)
         
-        iterations = int(raw_input("How many iterations do you want random search to run: "))
+        self.iterations = int(raw_input("How many iterations do you want random search to run: "))
         
-        for i in range(iterations):
+                # if plotting enabled, make a list
+        if plot == True:
+            self.fitnessList = [curBestFit]
+            self.iterationsList = [0]
+        
+        for i in range(self.iterations):
             newRGB =  self.randRgbRange()
             parameters.setRgbRanges(newRGB)
-            print "Iteration " + str(i + 1) 
             mask = self.segmenter.segmentImage(imageData, parameters)
             newFit = self.fitness.findFitness(mask, idealMaskData, parameters)
             
             if newFit < curBestFit:
                 curBestRGB = newRGB
                 curBestFit = newFit
+                
+                #append to list if plotting enabled
+                if plot == True:
+                    self.fitnessList.append(newFit)
+                    self.iterationsList.append(i + 1)
+                    
+            print "Iteration " + str(i + 1) + ", Fitness: " + str(curBestFit)
+
         
         parameters.setRgbRanges(curBestRGB)
+        
+        if plot == True:
+            self.plotSearch()
+        
         return parameters
     
     def randRgbRange(self):
@@ -51,3 +70,13 @@ class randomSearch(Search):
             if rgbRangeList[i] < rgbRangeList[i - 1]:
                 rgbRangeList[i] = randint(rgbRangeList[i - 1], 255)
         return (rgbRangeList[0:2], rgbRangeList[2:4], rgbRangeList[4:6])
+    
+    def plotSearch(self):
+        print self.fitnessList
+        print self.iterationsList
+        pylab.plot(self.iterationsList, self.fitnessList)
+        pylab.xlabel('Number of iterations')
+        pylab.ylabel('Fitness (lower is better)')
+        pylab.title('Fitness vs. Iterations')
+        pylab.savefig("plot.png")
+        

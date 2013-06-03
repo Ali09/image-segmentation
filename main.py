@@ -5,6 +5,7 @@ Usage options:
     Optional:
     -h --help    Prints this help message
     -e --export  Saves generated mask as output.png
+    -p --plot    Exports a plot of fitness vs. iterations (for random search)
     
     Required:
     -d --seg     Segmentation tool: 'rgb', ...
@@ -31,9 +32,9 @@ import search
 import parameters
 
 def main():
-    try:
-        shortOpts = "d:f:s:i:m:he"
-        longOpts = ["segment=", "fitness=", "search=", "image=", "mask=", "help", "export"]
+    #try:
+        shortOpts = "d:f:s:i:m:hep"
+        longOpts = ["segment=", "fitness=", "search=", "image=", "mask=", "help", "export", "plot"]
         
         try:
             options, remainder = getopt.getopt(sys.argv[1:], shortOpts, longOpts)
@@ -42,6 +43,7 @@ def main():
             exit(1)
         
         export = False
+        plot = False
         
         for opt, arg in options:
             if opt in ("-d", "--segment"):
@@ -56,9 +58,11 @@ def main():
                 idealMaskName = arg
             elif opt in ("-e", "--export"):
                 export = True
+            elif opt in ("-p", "--plot"):
+                plot = True
             elif opt in ("-h", "--help"):
                 print __doc__
-                exit(1)
+                exit(0)
             else:
                 pass
                 
@@ -102,15 +106,15 @@ def main():
         parameter = parameters.Parameters()
         parameter.setImageSize(image.size)
         
-        # run search on image, returns optimal paramers found
-        optimalParameters = searchFunc.searchImage(imageData, idealMaskData, parameter)
+        # run search on image, returns optimal paramaters found
+        optimalParameters = searchFunc.searchImage(imageData, idealMaskData, parameter, plot)
         
         # saves mask to output.png if export option set
         if (export == True):
             segmenter.segmentImage(imageData, optimalParameters, True)
     
-    except:
-        print "Type -h or --help for option info\n"
+    #except:
+    #    print "Type -h or --help for option info\n"
         
 
 main()

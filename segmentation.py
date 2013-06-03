@@ -1,6 +1,15 @@
 import Image # for image data
 from Grammer import Segment # Abstract Base Class
 
+def dataToImage(data, imageSize):
+    # Requires: -data holds 0-255 rgb tuples
+    #           -imageSize is a tuple of (width, height)
+    # Effects: saves a linear list of rgb tuples
+    #          as an image named "output.png"
+    output = Image.new("RGB", imageSize)
+    output.putdata(data)
+    output.save("output.png", "PNG")
+
 class rgbSegmenter(Segment):
     # RGB Segmenter Class that segments an image
     # based on ranges of RGB parameters
@@ -50,11 +59,4 @@ class rgbSegmenter(Segment):
         return mask
         
 
-def dataToImage(data, imageSize):
-    # Requires: -data holds 0-255 rgb tuples
-    #           -imageSize is a tuple of (width, height)
-    # Effects: saves a linear list of rgb tuples
-    #          as an image named "output.png"
-    output = Image.new("RGB", imageSize)
-    output.putdata(data)
-    output.save("output.png", "PNG")
+
