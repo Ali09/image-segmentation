@@ -1,5 +1,6 @@
 import Image # for image data
 from Grammer import Segment # Abstract Base Class
+import datetime # for output file name
 
 def dataToImage(data, imageSize):
     # Requires: -data holds 0-255 rgb tuples
@@ -8,7 +9,10 @@ def dataToImage(data, imageSize):
     #          as an image named "output.png"
     output = Image.new("RGB", imageSize)
     output.putdata(data)
-    output.save("output.png", "PNG")
+    time = datetime.datetime.now()
+    timeString = "output-" + str(time.month) + '.' + str(time.day) + '.' + str(time.year) 
+    timeString += '-' + str(time.hour) + '.' + str(time.minute) + ".png"
+    output.save(timeString, "PNG")
 
 class rgbSegmenter(Segment):
     # RGB Segmenter Class that segments an image
