@@ -4,14 +4,15 @@ class Segment(object):
     # Segment class that segments an image's data as specified
     
     def segmentImage(self, imageData, parameters, saveMaskImage = False):
-        # Requires: -imageData is a list of three-tupled RGB (0 - 255) data
-        #            i.e. data from PIL's list(image.getdata())
+        # Requires: -imageData is a list of three-tupled data in range [0, 1]
+        #            i.e. data from PIL's list(image.getdata()) divided by 255
         #           -parameters is of type Parameters
         # Effects: segment's image with given parameters
         #          -returns a list of three-tupled RGB data where
         #           (0, 0, 0) (Black) is background and 
-        #           (256, 256, 256) (White) is foreground
-        #          -saves the output mask as an image 'output.png' if saveMaskImage set to True
+        #           (255, 255, 255) (White) is foreground
+        #          -saves the output mask as an image 'output-'date'-'time'.png' 
+        #           if saveMaskImage set to True
         raise NotImplementedError
    
 class Fitness(object):
@@ -39,8 +40,8 @@ class Search(object):
     
     def searchImage(self, imageData, idealMaskData, parameters, plot = False):
         # Requires: -imageData and idealMaskData are
-        #            lists of three-tupled RGB (0 - 255) data
-        #            i.e. data from PIL's list(image.getdata())
+        #            lists of three-tupled [0, 1] data
+        #            i.e. data from PIL's list(image.getdata()) divided by 255
         #           -parameters is of type Parameters
         # Modifies: parameters
         # Effects: -searches the image's parameter space as specified
