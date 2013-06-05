@@ -1,3 +1,5 @@
+# Implementations of fitness subclasses
+
 import Image # for image data
 from Grammer import Fitness # Abstract Base Class
 

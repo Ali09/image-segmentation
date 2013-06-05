@@ -8,7 +8,7 @@ Usage options:
     -p --plot    Exports a plot of fitness vs. iterations (for random search)
     
     Required:
-    -d --seg     Segmentation tool: 'rgb', ...
+    -d --seg     Segmentation tool: 'rgb', 'hsv', 'hls' ...
     -f --fitness Fitness function:  'diff', ...
     -s --search  Search function:   'random', ...
     -i --image   Image filename
@@ -26,12 +26,14 @@ Example:
 import sys # for argv
 import Image # for image data
 import getopt # for command line parsing
+from imaging import colorSpaceConvert # for color space converting
 import segmentation
 import fitness
 import search
 import parameters
 
 def main():
+    # commented out try for debugging purposes
     #try:
         shortOpts = "d:f:s:i:m:hep"
         longOpts = ["segment=", "fitness=", "search=", "image=", "mask=", "help", "export", "plot"]
@@ -71,8 +73,8 @@ def main():
             exit(1)
             
         # initialize program based on arguments
-        if segmenterName.lower() == "rgb":
-            segmenter = segmentation.rgbSegmenter()
+        if segmenterName.lower() in ("rgb", "hsv", "hls"):
+            segmenter = segmentation.colorSegmenter()
         else:
             print "\nERROR: Invalid or no segmenter name\n"
             exit(1)
@@ -91,7 +93,7 @@ def main():
         
         try:
             image = Image.open(imageName)
-            imageData = list(image.getdata())
+            imageData = colorSpaceConvert(list(image.getdata()), segmenterName)
         except:
             print "\nERROR: Invalid or no image name\n"
             exit(1)
@@ -105,6 +107,7 @@ def main():
         
         parameter = parameters.Parameters()
         parameter.setImageSize(image.size)
+        parameter.setColorSpace(segmenterName)
         
         # run search on image, returns optimal paramaters found
         optimalParameters = searchFunc.searchImage(imageData, idealMaskData, parameter, plot)
