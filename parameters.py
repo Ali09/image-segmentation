@@ -11,6 +11,7 @@ class Parameters(object):
         self.colorSpace = None
         self.colorRanges = None
 	self.flipBit = False
+	self.upperLimit = float("inf")
     
     def setImageSize(self, imageSize):
         # Requires: imageSize is 2-tuple of (width, height)
@@ -43,3 +44,12 @@ class Parameters(object):
 	#	   -when flip bit is true,
 	#           segmenter will invert the segmentation found using rgb parameters
 	self.flipBit = value
+        
+    def setUpperLimit(self, upperLimit):
+        # Requires: upperLimit is a numeric type
+        # Modifies: this
+        # Effects: sets an upper limit of the current best
+        #          found fitness; allows absolute difference
+        #          fitness to terminate early if it finds a mask fitnes
+        #          greater than upper limit
+        self.upperLimit = upperLimit
