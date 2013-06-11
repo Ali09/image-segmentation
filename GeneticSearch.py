@@ -25,15 +25,14 @@ class geneticSearch(Search):
         # Effects: - Searches the parameter space using selective mutations
         #           to find an optimal solution, returns most optimal parameter found
         #          -plots fitness vs. generation of search if plot set to True
-        print "BLAH BLAH, outside hole - should I not take new things if not any better"
         print "Running genetic search"
         
-        mutatedPopSize = int(raw_input("Size of subsequent mutated populations: "))
-        numGenerations = int(raw_input("Number of mutated generations: "))
+        mutatedPopSize = int(raw_input("Size of mutated populations: "))
+        numGenerations = int(raw_input("Number of generations: "))
         
         # runs random search to find best from initial population
         # note, random search sets initial upper limit 
-        print "Running random search for initial population"
+        print "Calling random search for initial population size"
         randSearch = RandomSearch.randomSearch(self.segmenter, self.fitness)
         parameters = randSearch.searchImage(imageData, idealMaskData, parameters)
         
