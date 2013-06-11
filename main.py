@@ -8,9 +8,9 @@ Usage options:
     -p --plot    Exports a plot of fitness vs. iterations (for random search)
     
     Required:
-    -d --seg     Segmentation tool: 'rgb', 'hsv', 'hls' ...
+    -d --seg     Segmentation tool: 'rgb', 'hsv', 'hls', ...
     -f --fitness Fitness function:  'diff', ...
-    -s --search  Search function:   'random', ...
+    -s --search  Search function:   'random', 'genetic', ...
     -i --image   Image filename
     -m --mask    Ideal Mask filename
     
@@ -29,8 +29,10 @@ import getopt # for command line parsing
 from imaging import colorSpaceConvert # for color space converting
 import segmentation
 import fitness
-import search
+import RandomSearch
+import GeneticSearch
 import parameters
+import closure
 
 def main():
     # commented out try for debugging purposes
@@ -86,7 +88,9 @@ def main():
             exit(1)
         
         if searchName.lower() == "random":
-            searchFunc = search.randomSearch(segmenter, fitnessFunc)
+            searchFunc = RandomSearch.randomSearch(segmenter, fitnessFunc)
+        elif searchName.lower() == "genetic":
+            searchFunc = GeneticSearch.geneticSearch(segmenter, fitnessFunc)
         else:
             print "\nERROR: Invalid or no search name\n"
             exit(1)
@@ -115,6 +119,12 @@ def main():
         # saves mask to output.png if export option set
         if (export == True):
             segmenter.segmentImage(imageData, optimalParameters, True)
+        
+        mask = segmenter.segmentImage(imageData, optimalParameters)
+        close = closure.closure()
+        close.segmentRegions(mask, optimalParameters)
+
+        
     
     #except:
     #    print "Type -h or --help for option info\n"
