@@ -65,6 +65,6 @@ class colorSegmenter(Segment):
             dataToImage(mask, parameters.imageSize)
         
         return mask
-        
+
 
 
