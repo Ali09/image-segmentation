@@ -11,13 +11,23 @@ class closure(object):
     def __init__(self):
         pass
     
-    def segmentRegions(self, maskData, parameters):
+    def segmentRegions(self, maskData, parameters, clearWhite = 0, countWhite = False, saveImage = True):
         # Requires : -maskData is a (0, 0, 0) / (255, 255, 255)
         #             black / white rgb based list data set 
         #            -parameters is of type Parameters
+        #            -clearWhite is an integer, either 0 or 1
+        #            -countWhite and saveImage is a bool
         # Effects : -segments a black / white image into distinct
         #            black / white regions and attempts to fill
-        #            smaller black regions for increased fit 
+        #            smaller black regions for increased fit
+        #           -if clearWhite set to 1, segmentRegions
+        #            will remove any white that is
+        #            not connected to the largest sized foreground object
+        #           -if countWhite set to True, returns the count of
+        #            distinct white / foreground regions bigger than 200 pixels
+        #           -if saveImage set to False, segmentRegions does not
+        #            save image of new filled image as it does by default
+        
         imageSize = parameters.imageSize
         
         imageMat = imaging.dataToMatrix(maskData, imageSize)
@@ -48,20 +58,43 @@ class closure(object):
                     whiteRegions.append((count, border))
         dataList = imaging.matrixToData(imageMat)
         
-        
-        #maxBlackMarked = blackRegions.index(max(blackRegions)) + 1
-
+                        
+        if clearWhite == 2:
+            # clear out any foreground not connected to the largest piece
+            # of white foreground
+            maxWhiteMarked = (whiteRegions.index(max(whiteRegions)) + 1) * -1
+            
+            for i in range(len(dataList)):
+                if dataList[i] == maxWhiteMarked:
+                    dataList[i] = (255,) * 3
+                else:
+                    dataList[i] = (0,) * 3
+            
         # any black that is adjacent to border is background
         # otherwise surrounded by white, foreground
-        for i in range(len(dataList)):
-            if dataList[i] > 0 and blackRegions[abs(dataList[i]) - 1][1] == False:
-                dataList[i] = (255,) * 3
-            elif dataList[i] > 0:
-                dataList[i] = (0,) * 3
-            else:
-                dataList[i] = (255,) * 3                
-
-        imaging.dataToImage(dataList, parameters.imageSize, "-region")
+        else:
+            for i in range(len(dataList)):
+                if dataList[i] > 0 and blackRegions[abs(dataList[i]) - 1][1] == False:
+                    dataList[i] = (255,) * 3
+                elif dataList[i] > 0:
+                    dataList[i] = (0,) * 3
+                else:
+                    dataList[i] = (255,) * 3
+        
+        
+        # count white regions
+        if countWhite == True:
+            totalCount = 0
+            for i in range(len(whiteRegions)):
+                if whiteRegions[i][0] > 200:
+                    totalCount += 1
+            print "Total foreground count is " + str(totalCount)
+        
+        if clearWhite == 1:
+            self.segmentRegions(dataList, parameters, 2)
+        
+        if saveImage == True and clearWhite != 1:
+            imaging.dataToImage(dataList, parameters.imageSize, "-region")
 
         
     def floodFill(self, imageMat, coordinate, marker, parameters):
@@ -122,14 +155,3 @@ class closure(object):
                     BorderAdjacent = True
         
         return (totalCount, BorderAdjacent)
-
-
-'''from parameters import Parameters
-import Image
-
-param = Parameters()
-image = Image.open("demo/output-6.4.2013-12.58.png")
-imageData = list(image.getdata())
-param.setImageSize(image.size)
-close = closure()
-close.segmentRegions(imageData, param)'''
