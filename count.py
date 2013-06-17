@@ -17,6 +17,8 @@ def countRegions():
     
     if not (colorSpace in ["rgb", "hsv", "hls"]):
         print "Second argument not one of RGB, HSV, or HLS"
+        print "The first argument should be the name of the image to be segmented"
+        print "Followed by the desire color space representation"
         exit(1)
     
     try:
@@ -24,6 +26,8 @@ def countRegions():
         imageData = colorSpaceConvert(list(image.getdata()), argv[2].lower())
     except:
         print "Invalid or no image name given"
+        print "The first argument should be the name of the image to be segmented"
+        print "Followed by the desire color space representation"
         exit(1)
         
     if colorSpace == "rgb":
