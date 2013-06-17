@@ -32,12 +32,11 @@ class geneticSearch(Search):
         
         # runs random search to find best from initial population
         # note, random search sets initial upper limit 
-        print "Calling random search for initial population size"
+        print "Calling random search for initial population"
+        print "Initial population size = Number of Iterations"
         randSearch = RandomSearch.randomSearch(self.segmenter, self.fitness)
         parameters = randSearch.searchImage(imageData, idealMaskData, parameters)
-        
-        flipBit = parameters.flipBit
-        
+                
         newBestColorRange = deepcopy(parameters.colorRanges)
                 
         for i in range(numGenerations):
@@ -48,7 +47,7 @@ class geneticSearch(Search):
             parameters.setColorRanges(curBestColorRange)
             newMask = self.segmenter.segmentImage(imageData, parameters)
             curBestFit = self.fitness.findFitness(newMask, idealMaskData, parameters)
-                        
+                                   
             for j in range(mutatedPopSize):
                 newColorRange = self.mutateColorRange(curBestColorRange)
                 parameters.setColorRanges(newColorRange)
