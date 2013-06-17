@@ -26,7 +26,7 @@ class randomSearch(Search):
         # Effects: -Randomly searches the parameter space
         #           for an optimal solution, and returns most optimal parameter found
         #          -plots fitness vs. iterations of search if plot set to True
-
+        
         print "Running random search"
         
         curBestColorRange = self.randColorRange()
@@ -66,7 +66,7 @@ class randomSearch(Search):
                     self.iterationsList.append(i + 1)
                     
             print "Iteration " + str(i + 1) + ", Fitness: " + str(curBestFit)
-
+        
         parameters.setColorRanges(curBestColorRange)
         parameters.setFlipBit(curBestFlipBit)
         
