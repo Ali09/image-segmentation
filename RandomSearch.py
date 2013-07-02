@@ -6,6 +6,7 @@ from random import randint # for color ranges
 from Grammer import Search # Abstract Base Class
 import pylab # for plotting
 from copy import deepcopy # make deep copy for parameters
+import segmentation # to check for segmentation type in randomize function
 
 class randomSearch(Search):
     # Random Search Class that randomly alters the
@@ -28,13 +29,13 @@ class randomSearch(Search):
         #          -plots fitness vs. iterations of search if plot set to True
         
         print "Running random search"
+	
+	self.randomizeParameters(parameters)
+	curBestParameters = deepcopy(parameters)
+    
+        mask = self.segmenter.segmentImage(imageData, curBestParameters)
+        curBestFit = self.fitness.findFitness(mask, idealMaskData, curBestParameters)
         
-        curBestColorRange = self.randColorRange()
-	curBestFlipBit = choice([True, False])
-        parameters.setColorRanges(curBestColorRange)
-	parameters.setFlipBit(curBestFlipBit)
-        mask = self.segmenter.segmentImage(imageData, parameters)
-        curBestFit = self.fitness.findFitness(mask, idealMaskData, parameters)
         parameters.setUpperLimit(curBestFit)
         
         iterations = int(raw_input("How many iterations do you want random search to run: "))
@@ -45,19 +46,14 @@ class randomSearch(Search):
             self.iterationsList = [0]
         
         # run random search for num iterations
-        for i in range(iterations):
-            newColorRange =  self.randColorRange()
-	    newFlipBit = choice([True, False])
-            
-	    parameters.setColorRanges(newColorRange)
-	    parameters.setFlipBit(newFlipBit)
+        for i in range(iterations):	    
+	    self.randomizeParameters(parameters)
 	    
             mask = self.segmenter.segmentImage(imageData, parameters)
             newFit = self.fitness.findFitness(mask, idealMaskData, parameters)
             
-            if newFit < curBestFit:
-                curBestColorRange = deepcopy(newColorRange)
-		curBestFlipBit = newFlipBit
+            if newFit < curBestFit:		
+		curBestParameters = deepcopy(parameters)
                 curBestFit = newFit
                 parameters.setUpperLimit(curBestFit)
                 
@@ -68,13 +64,20 @@ class randomSearch(Search):
                     
             print "Iteration " + str(i + 1) + ", Fitness: " + str(curBestFit)
         
-        parameters.setColorRanges(curBestColorRange)
-        parameters.setFlipBit(curBestFlipBit)
-        
         if plot == True:
             self.plotSearch()
         
-        return parameters
+        return curBestParameters
+        
+    def randomizeParameters(self, parameters):
+        # Requires: parameters is of type Parameters
+        # Modifies: parameters
+        # Effects: randomly modifies parameters based on segmenter used
+        
+        # if color based segmenter, then randomize color range + flip bit
+        if type(self.segmenter) == type(segmentation.colorSegmenter()):
+            parameters.colorRanges = self.randColorRange()
+            parameters.flipBit = choice([True, False])   
     
     def randColorRange(self):
         # Effects: returns three 2-tuples of valid [0, 1] color range Min-Max's
