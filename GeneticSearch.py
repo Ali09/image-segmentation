@@ -19,7 +19,7 @@ class geneticSearch(Search):
         self.fitness = fitness
         
     def searchImage(self, imageData, idealMaskData, parameters, plot = False):
-        # Requires: -image and idealMask is an RGB based image such as a .png file'
+        # Requires: -image and idealMask is an RGB based image
         #           -parameters is of type Parameters
         # Modifies:  parameters
         # Effects: - Searches the parameter space using selective mutations
@@ -38,7 +38,8 @@ class geneticSearch(Search):
         parameters = randSearch.searchImage(imageData, idealMaskData, parameters)
                 
         newBestColorRange = deepcopy(parameters.colorRanges)
-                
+        
+        # outter loop, number of generations        
         for i in range(numGenerations):
             print "Generation " + str(i + 1)
             
@@ -47,7 +48,8 @@ class geneticSearch(Search):
             parameters.setColorRanges(curBestColorRange)
             newMask = self.segmenter.segmentImage(imageData, parameters)
             curBestFit = self.fitness.findFitness(newMask, idealMaskData, parameters)
-                                   
+            
+            # inner loop, number of pop per generations            
             for j in range(mutatedPopSize):
                 newColorRange = self.mutateColorRange(curBestColorRange)
                 parameters.setColorRanges(newColorRange)

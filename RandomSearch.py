@@ -44,6 +44,7 @@ class randomSearch(Search):
             self.fitnessList = [curBestFit]
             self.iterationsList = [0]
         
+        # run random search for num iterations
         for i in range(iterations):
             newColorRange =  self.randColorRange()
 	    newFlipBit = choice([True, False])
