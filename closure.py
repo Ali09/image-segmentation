@@ -11,7 +11,7 @@ class closure(object):
     def __init__(self):
         pass
     
-    def segmentRegions(self, maskData, parameters, clearWhite = 0, countWhite = False, saveImage = True):
+    def segmentRegions(self, maskData, parameters, clearWhite = 0, countWhite = False, saveImage = False):
         # Requires : -maskData is a (0, 0, 0) / (255, 255, 255)
         #             black / white rgb based list data set 
         #            -parameters is of type Parameters
@@ -46,6 +46,9 @@ class closure(object):
         
         blackCount = 0
         whiteCount = 0
+        
+        # flood fill each pixel value with 'black' or 'white', 
+        # and mark them with distinct values
         for row in range(imageSize[1]):
             for col in range(imageSize[0]):
                 if imageMat[row][col] == "black":
@@ -58,10 +61,11 @@ class closure(object):
                     whiteRegions.append((count, border))
         dataList = imaging.matrixToData(imageMat)
         
-                        
+
+        # clear out any foreground not connected to the largest piece
+        # of white foreground, executed after recursive call if clearWhite 
+        # set to 1 by user
         if clearWhite == 2:
-            # clear out any foreground not connected to the largest piece
-            # of white foreground
             maxWhiteMarked = (whiteRegions.index(max(whiteRegions)) + 1) * -1
             
             for i in range(len(dataList)):
@@ -90,11 +94,15 @@ class closure(object):
                     totalCount += 1
             print "Total foreground count is " + str(totalCount)
         
+        # if clear white is its non default value of 0, recursively call self
+        # to clear non connecting pieces
         if clearWhite == 1:
             self.segmentRegions(dataList, parameters, 2)
         
+        # export image if saveImage true 
+        # and clearWhite is either 0 or 2
         if saveImage == True and clearWhite != 1:
-            imaging.dataToImage(dataList, parameters.imageSize, "-region")
+            imaging.dataToImage(dataList, parameters.imageSize)
 
         
     def floodFill(self, imageMat, coordinate, marker, parameters):
@@ -103,10 +111,10 @@ class closure(object):
         #            -marker is an integer
         #            -the imageMat at coordinate holds either "black" or "white"
         # Modifies : imageMat
-        # Effects : 'flood fills' the image matrix to segment a region that contains
-        #            coordinate, marks the region with the number marker
-        #            returns the total count of pixels in region; used by segmentRegions
-        #            to segment different masked regions
+        # Effects : A BFS based algorithm that 'flood fills' the image matrix 
+        #            to segment a region that contains coordinate, marks the region 
+        #            with the number marker returns the total count of pixels 
+        #            in region; used by segmentRegions to segment different masked regions
         
         coordinates = Queue()
         
