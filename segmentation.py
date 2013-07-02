@@ -57,10 +57,12 @@ class colorSegmenter(Segment):
         
         mask = [background] * len(imageData)
         
+        # mark foreground if in color range
         for i in range(len(imageData)):
             if isForeground(imageData[i]):
                 mask[i] = foreground
         
+        # save image if set true
         if saveMaskImage == True:
             dataToImage(mask, parameters.imageSize)
         
