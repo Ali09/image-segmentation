@@ -59,3 +59,21 @@ def colorSpaceConvert(imageData, colorSpace):
         imageData[i] = func(imageData[i])
     
     return imageData
+
+def ROCdata(maskData, idealMaskData):
+    # Requires: -maskData and idealMaskData hold three-tupled black/white images
+    # Effects: returns a list of True Positives, False Positives,
+    #          False Negatives, and True negatives respectively
+    TP, FP, FN, TN = [0] * 4
+    
+    for i in range(len(maskData)):
+        if maskData[i][0] == 255 and idealMaskData[i][0] == 255:
+            TP += 1
+        elif maskData[i][0] == 255 and idealMaskData[i][0] == 0:
+            FP += 1
+        elif maskData[i][0] == 0 and idealMaskData[i][0] == 255:
+            FN += 1
+        else:
+            TN += 1
+    
+    return [TP, FP, FN, TN]
