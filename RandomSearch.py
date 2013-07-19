@@ -101,8 +101,6 @@ class randomSearch(Search):
         return (sorted([p1[0], p2[0]]), sorted([p1[1], p2[1]]), sorted([p1[2], p2[2]]))
     
     def plotSearch(self):
-        print self.fitnessList
-        print self.iterationsList
         pylab.plot(self.iterationsList, self.fitnessList)
         pylab.xlabel('Number of iterations')
         pylab.ylabel('Fitness (lower is better)')

@@ -27,7 +27,7 @@ class geneticSearch(Search):
         #           to find an optimal solution, returns most optimal parameter found
         #          -plots fitness vs. generation of search if plot set to True
         print "Running genetic search"
-        
+                
         mutatedPopSize = int(raw_input("Size of mutated populations: "))
         numGenerations = int(raw_input("Number of generations: "))
         
@@ -66,7 +66,6 @@ class geneticSearch(Search):
                 print "Gen " + str(i + 1) + " Iter " + str(j + 1) + ", " + str(curBestFit)
             
         parameters = deepcopy(curBestParameters)
-        
         return parameters
         
     def mutateParameters(self, parameters):
