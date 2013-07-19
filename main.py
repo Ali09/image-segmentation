@@ -4,10 +4,17 @@ Usage options:
     
     Optional:
     -h --help    Prints this help message
-    -e --export  Saves generated mask as output-date-time.png
+    -e --export  Saves generated masks as output-date-time.png
     -p --plot    Exports a plot of fitness vs. iterations (for random search)
     -c --close   Fills in black regions surrounded by white regions in final image mask,
-                 filled in mask only visible to user if export set true
+                 filled in mask only saved to user if export set true
+    -r --predict -Predicts segmentation of other images in specified folder using same parameters
+                  found for specified image; plots curve of fitness
+                  Requires: folder argument: "folder/"
+                            that the original images are in "folder/images/";
+                            that the masks are in "folder/originalmasks/",
+                            have the same name as their image counterparts
+                            and are of .png format
     
     Required:
     -d --seg     Segmentation tool: 'rgb', 'hsv', 'hls', ...
@@ -36,13 +43,14 @@ import GeneticSearch
 import AnnealSearch
 import parameters
 import closure
+import predict
 
 def main():
     # commented out try for debugging purposes
     #try:
-        shortOpts = "d:f:s:i:m:hepc"
+        shortOpts = "d:f:s:i:m:hepcr:"
         longOpts = ["segment=", "fitness=", "search=", "image=", 
-                    "mask=", "help", "export", "plot", "close"]
+                    "mask=", "help", "export", "plot", "close", "predict="]
         
         try:
             options, remainder = getopt.getopt(sys.argv[1:], shortOpts, longOpts)
@@ -53,6 +61,7 @@ def main():
         export = False
         plot = False
         close = False
+        predictImages = False
         
         # sets relevant variables based on command line input
         for opt, arg in options:
@@ -72,6 +81,9 @@ def main():
                 plot = True
             elif opt in ("-c", "--close"):
                 close = True
+            elif opt in ("-r", "--predict"):
+                predictImages = True
+                predictFolderName = arg
             elif opt in ("-h", "--help"):
                 print __doc__
                 exit(0)
@@ -114,11 +126,18 @@ def main():
         # if opening image fails, quit with error
         try:
             image = Image.open(imageName)
+            
+            # initialize parameters object, init's image size and color space used
+            parameter = parameters.Parameters()
+            parameter.setImageSize(image.size)
         
+            # use hsv or hls if segmenter specified, else use rgb by default
             if segmenterName.lower() in ("hsv", "hls"):
-                imageData = colorSpaceConvert(list(image.getdata()), segmenterName.lower())
+                parameter.setColorSpace(segmenterName.lower())
             else:
-                imageData = colorSpaceConvert(list(image.getdata()), "rgb")
+                parameter.setColorSpace("rgb")
+            
+            imageData = colorSpaceConvert(list(image.getdata()), parameter.colorSpace)
                 
         except:
             print "\nERROR: Invalid or no image name\n"
@@ -131,11 +150,6 @@ def main():
         except:
             print "\nERROR: Invalid or no mask name\n"
             exit(1)
-        
-        # initialize parameters object, init's image size and color space used
-        parameter = parameters.Parameters()
-        parameter.setImageSize(image.size)
-        parameter.setColorSpace(segmenterName.lower())
         
         # run search on image parameter space for segmentation
         # returns optimal paramaters found upon search completion
@@ -151,7 +165,13 @@ def main():
             mask = segmenter.segmentImage(imageData, optimalParameters)
             close = closure.closure()
             close.segmentRegions(mask, optimalParameters, saveImage = export)
-
+        
+        # reset upper limit
+        optimalParameters.setUpperLimit(float("inf"))
+        
+        if predictImages == True:
+            predict.predict(predictFolderName, optimalParameters, segmenter, fitnessFunc,
+                           plot = True, exportImages = export) 
         
     
     #except:
