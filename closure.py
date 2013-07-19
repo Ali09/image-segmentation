@@ -97,7 +97,7 @@ class closure(object):
         # if clear white is its non default value of 0, recursively call self
         # to clear non connecting pieces
         if clearWhite == 1:
-            self.segmentRegions(dataList, parameters, 2)
+            self.segmentRegions(dataList, parameters, clearWhite = 2, saveImage = True)
         
         # export image if saveImage true 
         # and clearWhite is either 0 or 2
