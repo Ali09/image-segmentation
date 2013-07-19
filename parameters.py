@@ -40,9 +40,10 @@ class Parameters(object):
     	# Modifies: this
 	# Effects: -sets flip bit to value
 	#	   -when flip bit is false (default),
-	#	    segmenter will segment as normal using rgb parameters 
+	#	    segmenter will segment as normal 
 	#	   -when flip bit is true,
-	#           segmenter will invert the segmentation found using rgb parameters
+	#       segmenter will invert the segmentation found,
+    #       foreground and background swap
 	self.flipBit = value
         
     def setUpperLimit(self, upperLimit):
