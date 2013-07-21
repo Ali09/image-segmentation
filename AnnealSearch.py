@@ -58,10 +58,6 @@ class annealSearch(Search):
             results = optimize.anneal(self.segmentAndFitnessColor, x0 = initialGuess, args=(parameters,), 
                                     schedule='cauchy', full_output=True, dwell=50, 
                                     lower=0.0, upper=1.0, disp=True,  T0 = .005)
-                                  
-            #dicts = {'args' : (parameters,)}
-            #results = optimize.basinhopping(self.segmentAndFitness, x0 = initialGuess, minimizer_kwargs=dicts, 
-            #                          niter = 1000)
             
             # prints anneal's final fitness                          
             print "Final Fitness " + str(results[1])
@@ -70,6 +66,8 @@ class annealSearch(Search):
             colorRanges = results[0]
             colorRanges = [colorRanges[0:2], colorRanges[2:4], colorRanges[4:6]]
             parameters.setColorRanges(colorRanges)
+            
+        # if other kind of segmenter, add below
             
         return parameters
         
