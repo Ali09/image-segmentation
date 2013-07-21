@@ -1,0 +1,24 @@
+Sample commands I used for the project / paper:
+
+-jordan output mask in demo/ + paper
+	> python main.py --fitness diff --seg hsv --search genetic --image images/jordan.png 
+	> --mask images/jordanMask.png --close white --export
+	  >	Size of mutated populations: 20
+	  >	Number of generations: 20
+	  >	How many iterations do you want random search to run: 250
+
+-prediction-based segmentation plot in demo/ + paper & segmentations for each of the images
+	> python main.py --fitness diff --seg hsv --search genetic 
+	> --image birds/albatross/original/Black_footed_Albatross_0002_2293084168.jpg 
+	> --mask birds/albatross/manualsegmentations/Black_footed_Albatross_0002_2293084168.png 
+	> --predict birds/albatross/ --export
+	  >	Size of mutated populations: 20
+	  >	Number of generations: 20
+	  >	How many iterations do you want random search to run: 250
+
+-petri dish count + mask in demo/ + paper
+	> python count.py petri.png HSV
+ 	  > Hue min-max, between 0 and 360: 320 360
+	  > Saturation min-max, between 0 and 100: 15 40
+ 	  > Value min-max, between 0 and 100: 55 80
+	  > Total foreground count is 210
