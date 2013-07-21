@@ -55,8 +55,6 @@ def predict(folderName, parameters, segmentAlgo,
         iteration += 1
     
     time = datetime.datetime.now()
-
-    
     
     npFitnessList = numpy.array(fitnessList)
     mu = npFitnessList.mean()
