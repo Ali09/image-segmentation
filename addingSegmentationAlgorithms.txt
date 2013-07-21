@@ -1,0 +1,13 @@
+The easiest way to add a new segmentation algorithm to the system is to:
+> Define the algorithm as a subclass of Segment in its own file
+	> takes same input as Segment, and outputs a linear array of (0, 0, 0) / (255, 255, 255) tuples which represents a binary image
+> Adding necessary parameters needed by the algorithm to the parameters class in Parameters.py
+	> instantiate it to some default / empty value in __init__
+	> define a function "setXYZparameters(self, xyzParameters)" which just tells the Parameters class to store the parameters
+> Updating search functions to accommodate different kind of parameters
+	> in both random and genetic search, there is a generic mutate / randomize function, which calls a sub-function depending on the segmenter used; 
+	  one would need to add a sub-randomize / mutate function that randomly alters the parameters as appropriate
+	> since simulated annealing is from scipy's optimize library, it's necessary to conform to their specific interface
+		> need to define a segmentedAndFitness function to pass into anneal, which essentially updates the parameters to those provided by anneal 
+		  each time it is called, then calls the specified segmentation algorithm with those parameters (see written function as example)
+		> need to update optimal parameters after call to anneal is made
