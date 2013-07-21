@@ -6,10 +6,13 @@ Usage options:
     -h --help    Prints this help message
     -e --export  Saves generated masks as output-date-time.png
     -p --plot    Exports a plot of fitness vs. iterations (for random search)
-    -c --close   Fills in black regions surrounded by white regions in final image mask,
-                 filled in mask only saved to user if export set true
+    -c --close   -Fills in black regions surrounded by white regions in final image mask
+                  filled in mask only saved to user if export set true;
+                  Requires: argument "black" to simply fill in black regions, or
+                            "white" to fill in black regions and remove any foreground 
+                            from image not connected to the largest piece
     -r --predict -Predicts segmentation of other images in specified folder using same parameters
-                  found for specified image; plots curve of fitness
+                  found for specified image; plots curve of fitness ratios
                   Requires: folder argument: "folder/"
                             that the original images are in "folder/images/";
                             that the masks are in "folder/originalmasks/",
@@ -48,9 +51,9 @@ import predict
 def main():
     # commented out try for debugging purposes
     #try:
-        shortOpts = "d:f:s:i:m:hepcr:"
+        shortOpts = "d:f:s:i:m:hepc:r:"
         longOpts = ["segment=", "fitness=", "search=", "image=", 
-                    "mask=", "help", "export", "plot", "close", "predict="]
+                    "mask=", "help", "export", "plot", "close=", "predict="]
         
         try:
             options, remainder = getopt.getopt(sys.argv[1:], shortOpts, longOpts)
@@ -81,6 +84,7 @@ def main():
                 plot = True
             elif opt in ("-c", "--close"):
                 close = True
+                closeType = arg
             elif opt in ("-r", "--predict"):
                 predictImages = True
                 predictFolderName = arg
@@ -156,19 +160,21 @@ def main():
         # and saves a plot of fitness vs. search extent if plot set to true
         optimalParameters = searchFunc.searchImage(imageData, idealMaskData, parameter, plot)
         
+        # reset upper limit
+        optimalParameters.setUpperLimit(float("inf"))
+        
         # if export enabled, saves mask using optimal parameters found to output.png
         if (export == True):
             segmenter.segmentImage(imageData, optimalParameters, True)
         
         # if export enabled, saves a 'closed' mask using optimal parameters found to output.png
         if (close == True):
+            whiteArg = 1 if closeType.lower() == "white" else 0
             mask = segmenter.segmentImage(imageData, optimalParameters)
             close = closure.closure()
-            close.segmentRegions(mask, optimalParameters, saveImage = export)
+            close.segmentRegions(mask, optimalParameters, saveImage = export, clearWhite = whiteArg)
         
-        # reset upper limit
-        optimalParameters.setUpperLimit(float("inf"))
-        
+
         if predictImages == True:
             predict.predict(predictFolderName, optimalParameters, segmenter, fitnessFunc,
                            plot = True, exportImages = export) 
